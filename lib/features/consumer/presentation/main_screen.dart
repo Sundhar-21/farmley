@@ -374,6 +374,11 @@ class _DesktopSidebar extends StatelessWidget {
                       ),
                     ),
                   ),
+                  const SizedBox(width: 8),
+                  Transform.scale(
+                    scale: 0.8,
+                    child: const VoiceButton(),
+                  ),
                 ],
               ),
             ),

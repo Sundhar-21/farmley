@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:farmconnect/shared/design_constants.dart';
@@ -122,59 +123,82 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                       children: [
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: DesignSpacing.m),
-                          child: Container(
-                            height: 50,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(DesignRadius.xxl),
-                              boxShadow: DesignShadows.small,
-                            ),
-                            child: TextField(
-                              controller: _searchController,
-                              style: GoogleFonts.poppins(
-                                fontSize: isDesktop ? 13 : 15,
-                                color: DesignColors.textPrimary,
-                              ),
-                              textAlignVertical: TextAlignVertical.center,
-                              onChanged: (value) {
-                                ref.read(searchQueryProvider.notifier).state = value;
-                              },
-                              decoration: InputDecoration(
-                                hintText: 'Search products...',
-                                hintStyle: GoogleFonts.poppins(color: DesignColors.textTertiary, fontSize: isDesktop ? 13 : 14),
-                                prefixIcon: Container(
-                                  margin: const EdgeInsets.all(DesignSpacing.s),
-                                  padding: const EdgeInsets.all(8),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Container(
+                                  height: 50,
                                   decoration: BoxDecoration(
-                                    color: DesignColors.primary.withOpacity(0.1),
-                                    shape: BoxShape.circle,
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(DesignRadius.xxl),
+                                    boxShadow: DesignShadows.small,
                                   ),
-                                  child: const Icon(Icons.search_rounded, color: DesignColors.primary, size: 18),
+                                  child: TextField(
+                                    controller: _searchController,
+                                    style: GoogleFonts.poppins(
+                                      fontSize: isDesktop ? 13 : 15,
+                                      color: DesignColors.textPrimary,
+                                    ),
+                                    textAlignVertical: TextAlignVertical.center,
+                                    onChanged: (value) {
+                                      ref.read(searchQueryProvider.notifier).state = value;
+                                    },
+                                    decoration: InputDecoration(
+                                      hintText: 'Search products...',
+                                      hintStyle: GoogleFonts.poppins(color: DesignColors.textTertiary, fontSize: isDesktop ? 13 : 14),
+                                      prefixIcon: Container(
+                                        margin: const EdgeInsets.all(DesignSpacing.s),
+                                        padding: const EdgeInsets.all(8),
+                                        decoration: BoxDecoration(
+                                          color: DesignColors.primary.withOpacity(0.1),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: const Icon(Icons.search_rounded, color: DesignColors.primary, size: 18),
+                                      ),
+                                      suffixIcon: searchQuery.isNotEmpty
+                                          ? IconButton(
+                                              icon: const Icon(Icons.clear, color: DesignColors.textSecondary),
+                                              onPressed: () {
+                                                _searchController.clear();
+                                                ref.read(searchQueryProvider.notifier).state = '';
+                                              },
+                                            )
+                                          : null,
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(DesignRadius.xxl),
+                                        borderSide: BorderSide.none,
+                                      ),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(DesignRadius.xxl),
+                                        borderSide: BorderSide.none,
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(DesignRadius.xxl),
+                                        borderSide: BorderSide.none,
+                                      ),
+                                      contentPadding: const EdgeInsets.symmetric(horizontal: DesignSpacing.m, vertical: 14),
+                                    ),
+                                  ),
                                 ),
-                                suffixIcon: searchQuery.isNotEmpty
-                                    ? IconButton(
-                                        icon: const Icon(Icons.clear, color: DesignColors.textSecondary),
-                                        onPressed: () {
-                                          _searchController.clear();
-                                          ref.read(searchQueryProvider.notifier).state = '';
-                                        },
-                                      )
-                                    : null,
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(DesignRadius.xxl),
-                                  borderSide: BorderSide.none,
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(DesignRadius.xxl),
-                                  borderSide: BorderSide.none,
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(DesignRadius.xxl),
-                                  borderSide: BorderSide.none,
-                                ),
-                                contentPadding: const EdgeInsets.symmetric(horizontal: DesignSpacing.m, vertical: 14),
                               ),
-                            ),
+                              const SizedBox(width: DesignSpacing.s),
+                              Container(
+                                width: 50,
+                                height: 50,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(DesignRadius.l),
+                                  boxShadow: DesignShadows.small,
+                                ),
+                                child: IconButton(
+                                  icon: const Icon(Icons.tune_rounded, color: DesignColors.primary, size: 24),
+                                  onPressed: () {
+                                    HapticFeedback.lightImpact();
+                                    // Filter logic placeholder
+                                  },
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                         const SizedBox(height: DesignSpacing.s),
