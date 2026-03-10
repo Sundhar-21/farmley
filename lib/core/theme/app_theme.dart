@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:farmconnect/shared/design_constants.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class AppTheme {
   static ThemeData lightTheme = ThemeData(
@@ -10,7 +11,6 @@ class AppTheme {
       primary: DesignColors.primary,
       secondary: DesignColors.primaryLight,
       surface: DesignColors.surface,
-      background: DesignColors.background,
       onPrimary: Colors.white,
       onSurface: DesignColors.textPrimary,
       error: DesignColors.error,
@@ -18,32 +18,32 @@ class AppTheme {
     scaffoldBackgroundColor: DesignColors.background,
     textTheme: GoogleFonts.poppinsTextTheme().copyWith(
       bodyLarge: GoogleFonts.poppins(
-        fontSize: 16,
+        fontSize: 16.sp,
         fontWeight: FontWeight.w500,
         color: const Color(0xFF111111),
       ),
       bodyMedium: GoogleFonts.poppins(
-        fontSize: 14,
+        fontSize: 14.sp,
         fontWeight: FontWeight.w500,
         color: const Color(0xFF111111),
       ),
       bodySmall: GoogleFonts.poppins(
-        fontSize: 12,
+        fontSize: 12.sp,
         fontWeight: FontWeight.w500,
         color: const Color(0xFF666666),
       ),
       titleLarge: GoogleFonts.poppins(
-        fontSize: 24,
+        fontSize: 24.sp,
         fontWeight: FontWeight.bold,
         color: const Color(0xFF111111),
       ),
       titleMedium: GoogleFonts.poppins(
-        fontSize: 18,
+        fontSize: 18.sp,
         fontWeight: FontWeight.bold,
         color: const Color(0xFF111111),
       ),
       titleSmall: GoogleFonts.poppins(
-        fontSize: 16,
+        fontSize: 16.sp,
         fontWeight: FontWeight.bold,
         color: const Color(0xFF111111),
       ),
@@ -54,7 +54,7 @@ class AppTheme {
       centerTitle: true,
       titleTextStyle: GoogleFonts.poppins(
         color: DesignColors.textPrimary,
-        fontSize: 20,
+        fontSize: 20.sp,
         fontWeight: FontWeight.bold,
       ),
       iconTheme: const IconThemeData(color: DesignColors.textPrimary),
@@ -108,7 +108,6 @@ class AppTheme {
       primary: DesignColors.primary,
       secondary: DesignColors.secondary,
       surface: const Color(0xFF1A1A1A),
-      background: const Color(0xFF111111),
       onPrimary: Colors.black,
       onSurface: Colors.white,
     ),
@@ -120,7 +119,7 @@ class AppTheme {
       centerTitle: true,
       titleTextStyle: GoogleFonts.poppins(
         color: Colors.white,
-        fontSize: 20,
+        fontSize: 20.sp,
         fontWeight: FontWeight.bold,
       ),
       iconTheme: const IconThemeData(color: Colors.white),
@@ -134,7 +133,7 @@ class AppTheme {
           borderRadius: BorderRadius.circular(DesignRadius.xxl),
         ),
         textStyle: GoogleFonts.poppins(
-          fontSize: 18,
+          fontSize: 18.sp,
           fontWeight: FontWeight.bold,
         ),
       ),

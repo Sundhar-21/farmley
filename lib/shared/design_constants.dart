@@ -22,6 +22,18 @@ class DesignColors {
   static const Color cardShadow = Color(0x1A000000);
   static const Color shimmerBase = Color(0xFFE0E0E0);
   static const Color shimmerHighlight = Color(0xFFF5F5F5);
+
+  // Soft Palette for Category Tiles (Premium Grocery Look)
+  static const Color mintBackground = Color(0xFFBCE2D3);
+  static const Color mintTileUnselected = Color(0xFFC7E8D9);
+  static const Color softBlue = Color(0xFFE3F2FD);
+  static const Color softOrange = Color(0xFFFFF3E0);
+  static const Color softPurple = Color(0xFFF3E5F5);
+  static const Color softRed = Color(0xFFFFEBEE);
+  static const Color softTeal = Color(0xFFE0F2F1);
+  static const Color softYellow = Color(0xFFFFFDE7);
+  static const Color dullLightGreen = Color(0xFFEAF4EA);
+  static const Color filterBackground = Color(0xFFD5ECD5);
 }
 
 class DesignGradients {

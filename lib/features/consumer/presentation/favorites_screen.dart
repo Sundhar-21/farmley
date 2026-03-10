@@ -27,6 +27,7 @@ class FavoritesScreen extends ConsumerWidget {
           ),
         ),
         child: SafeArea(
+          bottom: false,
           child: Column(
             children: [
               Padding(
@@ -111,7 +112,7 @@ class FavoritesScreen extends ConsumerWidget {
                         ),
                       )
                     : GridView.builder(
-                        padding: const EdgeInsets.symmetric(horizontal: DesignSpacing.m),
+                        padding: const EdgeInsets.fromLTRB(DesignSpacing.m, 0, DesignSpacing.m, 100), // Added 100px bottom padding
                         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
                           mainAxisSpacing: DesignSpacing.m,

@@ -25,26 +25,12 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
   Widget build(BuildContext context) {
     final authState = ref.watch(authNotifierProvider);
     final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final isDesktop = screenWidth >= 800;
 
-    return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFFF0FFF0),
-              Color(0xFFFFFFFF),
-              Color(0xFFF8FFF8),
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+    final formColumn = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
                 IconButton(
                   onPressed: () => Navigator.pop(context),
                   icon: Container(
@@ -57,50 +43,55 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                     child: const Icon(Icons.arrow_back_ios_new, size: 18),
                   ),
                 ),
-                const SizedBox(height: 16),
-                Center(
-                  child: Container(
-                    width: 80,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      gradient: DesignGradients.primaryGradient,
-                      borderRadius: BorderRadius.circular(24),
-                      boxShadow: DesignShadows.glow,
-                    ),
-                    child: const Icon(
-                      Icons.eco_rounded,
-                      color: Colors.white,
-                      size: 40,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                Center(
-                  child: Text(
-                    "Create Account",
-                    style: GoogleFonts.outfit(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: DesignColors.textPrimary,
+                if (!isDesktop) ...[
+                  const SizedBox(height: 16),
+                  Center(
+                    child: Container(
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        gradient: DesignGradients.primaryGradient,
+                        borderRadius: BorderRadius.circular(24),
+                        boxShadow: DesignShadows.glow,
+                      ),
+                      child: const Icon(
+                        Icons.eco_rounded,
+                        color: Colors.white,
+                        size: 40,
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 8),
-                Center(
-                  child: Text(
-                    "Join the FarmConnect family",
-                    style: GoogleFonts.outfit(
-                      fontSize: 16,
-                      color: DesignColors.textSecondary,
+                  const SizedBox(height: 24),
+                  Center(
+                    child: Text(
+                      "Create Account",
+                      style: GoogleFonts.outfit(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: DesignColors.textPrimary,
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 32),
+                  const SizedBox(height: 8),
+                  Center(
+                    child: Text(
+                      "Join the FarmConnect family",
+                      style: GoogleFonts.outfit(
+                        fontSize: 16,
+                        color: DesignColors.textSecondary,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                ] else ...[
+                  const SizedBox(height: 24),
+                ],
                 _buildInputField(
                   controller: _fullNameController,
                   label: "Full Name",
                   hint: "Enter your full name",
                   prefixIcon: Icons.person_outline,
+                  isDesktop: isDesktop,
                 ),
                 const SizedBox(height: 20),
                 _buildInputField(
@@ -109,6 +100,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                   hint: "Enter your email",
                   prefixIcon: Icons.email_outlined,
                   keyboardType: TextInputType.emailAddress,
+                  isDesktop: isDesktop,
                 ),
                 const SizedBox(height: 20),
                 _buildInputField(
@@ -119,6 +111,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                   suffixIcon: _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
                   obscureText: _obscurePassword,
                   onSuffixTap: () => setState(() => _obscurePassword = !_obscurePassword),
+                  isDesktop: isDesktop,
                 ),
                 const SizedBox(height: 28),
                 Text(
@@ -247,7 +240,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                             : Text(
                                 "Create Account",
                                 style: GoogleFonts.outfit(
-                                  fontSize: 18,
+                                  fontSize: isDesktop ? 15 : 18,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
                                 ),
@@ -264,7 +257,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                       "Already have an account? ",
                       style: GoogleFonts.outfit(
                         color: DesignColors.textSecondary,
-                        fontSize: 15,
+                        fontSize: isDesktop ? 13 : 15,
                       ),
                     ),
                     GestureDetector(
@@ -273,18 +266,134 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                         "Login",
                         style: GoogleFonts.outfit(
                           color: DesignColors.primaryDark,
-                          fontSize: 15,
+                          fontSize: isDesktop ? 13 : 15,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
                   ],
                 ),
-                SizedBox(height: screenHeight * 0.05),
+                const SizedBox(height: 24),
               ],
+            );
+
+    Widget content;
+    if (isDesktop) {
+      content = Padding(
+        padding: const EdgeInsets.all(40.0),
+        child: formColumn,
+      );
+    } else {
+      content = SingleChildScrollView(
+        padding: const EdgeInsets.all(24.0),
+        child: formColumn,
+      );
+    }
+
+    if (isDesktop) {
+      return Scaffold(
+        body: Row(
+          children: [
+            Expanded(
+              flex: 4,
+              child: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xFF1B9E26), Color(0xFF28D339)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 100,
+                        height: 100,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        child: const Icon(Icons.eco_rounded, color: Colors.white, size: 56),
+                      ),
+                      const SizedBox(height: 28),
+                      Text('FarmConnect', style: GoogleFonts.outfit(color: Colors.white, fontSize: 36, fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 12),
+                      Text('Join the farm fresh community', style: GoogleFonts.outfit(color: Colors.white.withValues(alpha: 0.8), fontSize: 16)),
+                      const SizedBox(height: 32),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 32),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(width: 32, height: 32, decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), shape: BoxShape.circle), child: const Icon(Icons.eco_rounded, color: Colors.white, size: 18)),
+                            const SizedBox(width: 12),
+                            Text('Organic & fresh produce', style: GoogleFonts.outfit(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500)),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                         padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 32),
+                         child: Row(
+                           mainAxisSize: MainAxisSize.min,
+                           children: [
+                             Container(width: 32, height: 32, decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), shape: BoxShape.circle), child: const Icon(Icons.local_shipping_rounded, color: Colors.white, size: 18)),
+                             const SizedBox(width: 12),
+                             Text('Farm-to-door delivery', style: GoogleFonts.outfit(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500)),
+                           ],
+                         ),
+                      ),
+                      Padding(
+                         padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 32),
+                         child: Row(
+                           mainAxisSize: MainAxisSize.min,
+                           children: [
+                             Container(width: 32, height: 32, decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), shape: BoxShape.circle), child: const Icon(Icons.verified_rounded, color: Colors.white, size: 18)),
+                             const SizedBox(width: 12),
+                             Text('Verified local farmers', style: GoogleFonts.outfit(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500)),
+                           ],
+                         ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
+            Expanded(
+              flex: 6,
+              child: Container(
+                color: Colors.white,
+                child: CustomScrollView(
+                  slivers: [
+                    SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: Center(
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 440),
+                          child: content,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Scaffold(
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFFF0FFF0), Color(0xFFFFFFFF), Color(0xFFF8FFF8)],
           ),
         ),
+        child: SafeArea(child: content),
       ),
     );
   }
@@ -298,6 +407,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     bool obscureText = false,
     TextInputType? keyboardType,
     VoidCallback? onSuffixTap,
+    bool isDesktop = false,
   }) {
     return Container(
       decoration: BoxDecoration(
@@ -309,11 +419,13 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
         controller: controller,
         obscureText: obscureText,
         keyboardType: keyboardType,
+        style: GoogleFonts.outfit(color: DesignColors.textPrimary, fontSize: 15),
+        cursorColor: DesignColors.primary,
         decoration: InputDecoration(
           labelText: label,
           hintText: hint,
-          labelStyle: GoogleFonts.outfit(color: DesignColors.textSecondary),
-          hintStyle: GoogleFonts.outfit(color: DesignColors.textTertiary),
+          labelStyle: GoogleFonts.outfit(color: DesignColors.textSecondary, fontSize: isDesktop ? 15 : null),
+          hintStyle: GoogleFonts.outfit(color: DesignColors.textTertiary, fontSize: isDesktop ? 14 : null),
           prefixIcon: Icon(prefixIcon, color: DesignColors.primary),
           suffixIcon: suffixIcon != null
               ? IconButton(

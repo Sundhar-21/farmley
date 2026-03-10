@@ -3,47 +3,49 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 class CartItem {
   final Map<String, dynamic> product;
+  final String weight;
   int quantity;
 
-  CartItem({required this.product, this.quantity = 1});
+  CartItem({required this.product, required this.weight, this.quantity = 1});
+
+  String get cartKey => '${product['id']}_$weight';
 }
 
 class CartNotifier extends StateNotifier<List<CartItem>> {
   CartNotifier() : super([]);
 
-  void addToCart(Map<String, dynamic> product, int quantity) {
-    final existingItemIndex = state.indexWhere((item) => item.product['id'] == product['id']);
+  void addToCart(Map<String, dynamic> product, String weight, int quantity) {
+    final cartKey = '${product['id']}_$weight';
+    final existingItemIndex = state.indexWhere((item) => item.cartKey == cartKey);
 
     if (existingItemIndex != -1) {
-      // Item already in cart, update its quantity
       final existingItem = state[existingItemIndex];
-      updateQuantity(product['id'], existingItem.quantity + quantity);
+      updateQuantity(cartKey, existingItem.quantity + quantity);
     } else {
-      // Item not in cart, add it with the specified quantity
-      state = [...state, CartItem(product: product, quantity: quantity)];
+      state = [...state, CartItem(product: product, weight: weight, quantity: quantity)];
     }
   }
 
-  void removeFromCart(int productId) {
-    state = state.where((item) => item.product['id'] != productId).toList();
+  void removeFromCart(String cartKey) {
+    state = state.where((item) => item.cartKey != cartKey).toList();
   }
 
-  void incrementQuantity(int productId) {
+  void incrementQuantity(String cartKey) {
     state = [
       for (final item in state)
-        if (item.product['id'] == productId)
-          CartItem(product: item.product, quantity: item.quantity + 1)
+        if (item.cartKey == cartKey)
+          CartItem(product: item.product, weight: item.weight, quantity: item.quantity + 1)
         else
           item
     ];
   }
 
-  void decrementQuantity(int productId) {
+  void decrementQuantity(String cartKey) {
     state = [
       for (final item in state)
-        if (item.product['id'] == productId)
+        if (item.cartKey == cartKey)
           if (item.quantity > 1)
-            CartItem(product: item.product, quantity: item.quantity - 1)
+            CartItem(product: item.product, weight: item.weight, quantity: item.quantity - 1)
           else
             item
         else
@@ -51,22 +53,25 @@ class CartNotifier extends StateNotifier<List<CartItem>> {
     ];
   }
 
-  void updateQuantity(int productId, int newQuantity) {
+  void updateQuantity(String cartKey, int newQuantity) {
     if (newQuantity < 1) {
-      removeFromCart(productId);
+      removeFromCart(cartKey);
       return;
     }
     state = [
       for (final item in state)
-        if (item.product['id'] == productId)
-          CartItem(product: item.product, quantity: newQuantity)
+        if (item.cartKey == cartKey)
+          CartItem(product: item.product, weight: item.weight, quantity: newQuantity)
         else
           item
     ];
   }
 
   double get totalPrice {
-    return state.fold(0, (total, item) => total + (item.product['price'] * item.quantity));
+    return state.fold(0, (total, item) {
+      final multiplier = item.weight == '1kg' ? 2 : 1;
+      return total + (item.product['price'] * multiplier * item.quantity);
+    });
   }
 
   Future<void> checkout(SupabaseClient supabase, String shippingAddress) async {
@@ -88,12 +93,15 @@ class CartNotifier extends StateNotifier<List<CartItem>> {
     final orderId = orderResponse['id'];
 
     // 3. Create Order Items
-    final itemsData = state.map((item) => {
-      'order_id': orderId,
-      'product_id': item.product['id'], // Assuming product has integer ID
-      'farmer_id': item.product['farmer_id'], // Denormalized for farmer ease
-      'quantity': item.quantity,
-      'price_at_time_of_order': item.product['price']
+    final itemsData = state.map((item) {
+      final multiplier = item.weight == '1kg' ? 2 : 1;
+      return {
+        'order_id': orderId,
+        'product_id': item.product['id'], // Integer ID retained
+        'farmer_id': item.product['farmer_id'],
+        'quantity': item.quantity,
+        'price_at_time_of_order': item.product['price'] * multiplier,
+      };
     }).toList();
 
     await supabase.from('order_items').insert(itemsData);

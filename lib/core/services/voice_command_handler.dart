@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:farmconnect/core/services/voice_service.dart';
-import 'package:farmconnect/core/services/voice_language_provider.dart';
 import 'package:farmconnect/features/consumer/data/navigation_provider.dart';
 import 'package:farmconnect/features/consumer/data/product_provider.dart';
 import 'package:farmconnect/features/consumer/data/cart_provider.dart';
@@ -546,7 +545,7 @@ class VoiceCommandHandler {
 
       if (matchingProducts.isNotEmpty) {
         final product = matchingProducts.first;
-        ref.read(cartProvider.notifier).addToCart(product, 1);
+        ref.read(cartProvider.notifier).addToCart(product, product['unit'] ?? '500g', 1);
         
         if (_currentLanguage == 'ta') {
           voiceService.speak('${product['name']} கார்ட்டில் சேர்க்கப்பட்டது');

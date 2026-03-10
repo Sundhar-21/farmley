@@ -29,7 +29,7 @@ class EmptyStateWidget extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(DesignSpacing.xl),
               decoration: BoxDecoration(
-                color: DesignColors.primary.withValues(alpha: 0.1),
+                color: DesignColors.primary.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -70,3 +70,4 @@ class EmptyStateWidget extends StatelessWidget {
     );
   }
 }
+

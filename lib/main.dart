@@ -1,7 +1,9 @@
+import 'package:flutter/foundation.dart' show kIsWeb, defaultTargetPlatform, TargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:farmconnect/core/theme/app_theme.dart';
 import 'package:farmconnect/core/services/supabase_service.dart';
 import 'package:farmconnect/core/l10n/app_localizations.dart';
@@ -34,34 +36,41 @@ class _FarmConnectAppState extends ConsumerState<FarmConnectApp> {
   Widget build(BuildContext context) {
     final locale = ref.watch(localeProvider);
 
-    return MaterialApp(
-      title: 'FarmConnect',
-      theme: AppTheme.lightTheme,
-      debugShowCheckedModeBanner: false,
-      locale: locale,
+    return ScreenUtilInit(
+      designSize: const Size(390, 844), // iPhone 13/14 design size
+      minTextAdapt: true,
+      splitScreenMode: true,
       builder: (context, child) {
-        return MediaQuery(
-          data: MediaQuery.of(context).copyWith(
-            textScaler: TextScaler.noScaling,
-          ),
-          child: child!,
+        return MaterialApp(
+          title: 'FarmConnect',
+          theme: AppTheme.lightTheme,
+          debugShowCheckedModeBanner: false,
+          locale: locale,
+          builder: (context, child) {
+            return MediaQuery(
+              data: MediaQuery.of(context).copyWith(
+                textScaler: TextScaler.noScaling,
+              ),
+              child: child!,
+            );
+          },
+          supportedLocales: [
+            const Locale('en'),
+            const Locale('ta'),
+            const Locale('hi'),
+            const Locale('kn'),
+            const Locale('te'),
+            const Locale('ml'),
+          ],
+          localizationsDelegates: [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          home: const AuthWrapper(),
         );
       },
-      supportedLocales: [
-        const Locale('en'),
-        const Locale('ta'),
-        const Locale('hi'),
-        const Locale('kn'),
-        const Locale('te'),
-        const Locale('ml'),
-      ],
-      localizationsDelegates: [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      home: const AuthWrapper(),
     );
   }
 }

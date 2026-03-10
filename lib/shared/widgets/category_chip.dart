@@ -7,6 +7,7 @@ class CategoryChip extends StatelessWidget {
   final IconData? icon;
   final bool isSelected;
   final VoidCallback onTap;
+  final double? width;
 
   const CategoryChip({
     super.key,
@@ -14,6 +15,7 @@ class CategoryChip extends StatelessWidget {
     this.icon,
     required this.isSelected,
     required this.onTap,
+    this.width,
   });
 
   @override
@@ -22,6 +24,7 @@ class CategoryChip extends StatelessWidget {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
+        width: width,
         padding: const EdgeInsets.symmetric(
           horizontal: DesignSpacing.l,
           vertical: DesignSpacing.s + 2,
@@ -38,6 +41,7 @@ class CategoryChip extends StatelessWidget {
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: width != null ? MainAxisAlignment.center : MainAxisAlignment.start,
           children: [
             if (icon != null) ...[
               Icon(

@@ -146,10 +146,10 @@ class FarmerOrdersScreen extends ConsumerWidget {
                             ],
                           ),
                           const SizedBox(height: 8),
-                          _buildInfoRow(Icons.location_on, order?['shipping_address'] ?? 'No address', const Color(0xFF111111)),
+                          _buildInfoRow(Icons.location_on, order['shipping_address'] ?? 'No address', const Color(0xFF111111)),
                           _buildInfoRow(
                             Icons.access_time,
-                            order != null && order['created_at'] != null 
+                            order['created_at'] != null 
                                 ? timeago.format(DateTime.parse(order['created_at']))
                                 : 'Recently',
                             const Color(0xFF888888),
@@ -158,11 +158,11 @@ class FarmerOrdersScreen extends ConsumerWidget {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                             decoration: BoxDecoration(
-                              color: _getStatusColor(order?['status'] ?? 'pending'),
+                              color: _getStatusColor(order['status'] ?? 'pending'),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
-                              (order?['status'] ?? 'pending').toUpperCase(),
+                              (order['status'] ?? 'pending').toUpperCase(),
                               style: GoogleFonts.outfit(
                                 color: Colors.white,
                                 fontSize: 11,

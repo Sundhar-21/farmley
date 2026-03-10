@@ -239,7 +239,7 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
                   const SizedBox(width: 16),
                   Expanded(
                     child: DropdownButtonFormField<String>(
-                      value: _selectedUnit,
+                      initialValue: _selectedUnit,
                       decoration: InputDecoration(
                         labelText: "Unit",
                         labelStyle: GoogleFonts.outfit(color: const Color(0xFF111111), fontWeight: FontWeight.w600),
@@ -292,7 +292,7 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
 
               categoriesAsync.when(
                 data: (categories) => DropdownButtonFormField<int>(
-                  value: _selectedCategoryId,
+                  initialValue: _selectedCategoryId,
                   decoration: InputDecoration(
                     labelText: "Category",
                     prefixIcon: const Icon(Icons.category_outlined, color: Color(0xFF111111)),

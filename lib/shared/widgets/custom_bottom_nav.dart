@@ -1,8 +1,9 @@
 import 'dart:ui';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:farmconnect/shared/design_constants.dart';
 import 'package:farmconnect/features/consumer/data/cart_provider.dart';
 import 'package:farmconnect/features/consumer/data/favorites_provider.dart';
@@ -23,45 +24,15 @@ class CustomBottomNav extends ConsumerWidget {
     final cartCount = ref.watch(cartProvider).length;
     final favCount = ref.watch(favoritesProvider).length;
 
-    return Container(
-      margin: const EdgeInsets.fromLTRB(12, 0, 12, 6),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(32),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-          child: Container(
-            height: 76,
-            decoration: BoxDecoration(
-              color: CupertinoColors.systemBackground.withValues(alpha: 0.85),
-              borderRadius: BorderRadius.circular(32),
-              border: Border.all(
-                color: CupertinoColors.systemGrey5.withValues(alpha: 0.5),
-                width: 0.5,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: CupertinoColors.black.withValues(alpha: 0.08),
-                  blurRadius: 20,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _buildNavItem(0, CupertinoIcons.house_fill, CupertinoIcons.house, context.tr('home')),
-                  _buildNavItem(1, CupertinoIcons.search, CupertinoIcons.search, context.tr('markets')),
-                  _buildNavItem(2, CupertinoIcons.heart_fill, CupertinoIcons.heart, context.tr('favorites'), badge: favCount > 0 ? favCount : null),
-                  _buildNavItem(3, CupertinoIcons.cart_fill, CupertinoIcons.cart, context.tr('cart'), badge: cartCount > 0 ? cartCount : null),
-                  _buildNavItem(4, CupertinoIcons.person_fill, CupertinoIcons.person, context.tr('profile')),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: [
+        _buildNavItem(0, CupertinoIcons.house_fill, CupertinoIcons.house, context.tr('home')),
+        _buildNavItem(1, CupertinoIcons.search, CupertinoIcons.search, context.tr('markets')),
+        _buildNavItem(2, CupertinoIcons.heart_fill, CupertinoIcons.heart, context.tr('favorites'), badge: favCount > 0 ? favCount : null),
+        _buildNavItem(3, CupertinoIcons.cart_fill, CupertinoIcons.cart, context.tr('cart'), badge: cartCount > 0 ? cartCount : null),
+        _buildNavItem(4, CupertinoIcons.person_fill, CupertinoIcons.person, context.tr('profile')),
+      ],
     );
   }
 
@@ -73,7 +44,7 @@ class CustomBottomNav extends ConsumerWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeInOut,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -86,39 +57,42 @@ class CustomBottomNav extends ConsumerWidget {
                     isSelected ? activeIcon : inactiveIcon,
                     key: ValueKey(isSelected),
                     color: isSelected ? DesignColors.primary : CupertinoColors.systemGrey,
-                    size: 24,
+                    size: 24.sp,
                   ),
                 ),
                 if (badge != null)
                   Positioned(
-                    top: -6,
-                    right: -8,
+                    top: -6.h,
+                    right: -8.w,
                     child: Container(
-                      padding: const EdgeInsets.all(4),
+                      padding: EdgeInsets.all(4.r),
                       decoration: const BoxDecoration(
                         color: CupertinoColors.destructiveRed,
                         shape: BoxShape.circle,
                       ),
-                      constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
+                      constraints: BoxConstraints(minWidth: 18.w, minHeight: 18.h),
                       child: Center(
                         child: Text(
                           badge > 9 ? '9+' : badge.toString(),
-                          style: const TextStyle(color: CupertinoColors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                          style: TextStyle(color: CupertinoColors.white, fontSize: 10.sp, fontWeight: FontWeight.bold),
                         ),
                       ),
                     ),
                   ),
               ],
             ),
-            const SizedBox(height: 3),
+            SizedBox(height: 3.h),
             AnimatedDefaultTextStyle(
               duration: const Duration(milliseconds: 200),
               style: GoogleFonts.inter(
                 color: isSelected ? DesignColors.primary : CupertinoColors.systemGrey,
-                fontSize: 11,
+                fontSize: 9.sp, // Slightly smaller
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
               ),
-              child: Text(label),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(label),
+              ),
             ),
           ],
         ),
@@ -126,3 +100,4 @@ class CustomBottomNav extends ConsumerWidget {
     );
   }
 }
+

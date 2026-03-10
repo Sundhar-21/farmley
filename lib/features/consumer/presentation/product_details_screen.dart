@@ -17,7 +17,8 @@ class ProductDetailsScreen extends ConsumerStatefulWidget {
 }
 
 class _ProductDetailsScreenState extends ConsumerState<ProductDetailsScreen> with TickerProviderStateMixin {
-  int _quantity = 1;
+  final int _quantity = 1;
+  bool _isBaseWeightSelected = true;
   late AnimationController _favController;
   late Animation<double> _favScaleAnimation;
   late AnimationController _cartController;
@@ -57,7 +58,10 @@ class _ProductDetailsScreenState extends ConsumerState<ProductDetailsScreen> wit
 
     return Scaffold(
       backgroundColor: Colors.white,
-      body: CustomScrollView(
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final isDesktop = constraints.maxWidth >= 800;
+          return CustomScrollView(
         slivers: [
           // Large Image Header
           SliverAppBar(
@@ -134,7 +138,7 @@ class _ProductDetailsScreenState extends ConsumerState<ProductDetailsScreen> wit
                     Expanded(
                       child: Text(
                         widget.product['name'] ?? 'Product Name',
-                        style: GoogleFonts.poppins(fontSize: 28, fontWeight: FontWeight.bold, color: DesignColors.textPrimary),
+                        style: GoogleFonts.poppins(fontSize: isDesktop ? 22 : 28, fontWeight: FontWeight.bold, color: DesignColors.textPrimary),
                       ),
                     ),
                     Row(
@@ -159,9 +163,23 @@ class _ProductDetailsScreenState extends ConsumerState<ProductDetailsScreen> wit
                 const SizedBox(height: DesignSpacing.m),
                 Row(
                   children: [
-                    Expanded(child: _buildWeightOption('500g', '\$4.50', true)),
+                    Expanded(
+                      child: _buildWeightOption(
+                        '500g', 
+                        '\$${widget.product['price'].toStringAsFixed(2)}', 
+                        _isBaseWeightSelected, 
+                        () => setState(() => _isBaseWeightSelected = true),
+                      ),
+                    ),
                     const SizedBox(width: DesignSpacing.m),
-                    Expanded(child: _buildWeightOption('1kg', '\$8.00', false)),
+                    Expanded(
+                      child: _buildWeightOption(
+                        '1kg', 
+                        '\$${(widget.product['price'] * 2).toStringAsFixed(2)}', 
+                        !_isBaseWeightSelected, 
+                        () => setState(() => _isBaseWeightSelected = false),
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: DesignSpacing.xl),
@@ -196,7 +214,14 @@ class _ProductDetailsScreenState extends ConsumerState<ProductDetailsScreen> wit
                               children: [
                                 const Icon(Icons.location_on, size: 14, color: DesignColors.textSecondary),
                                 const SizedBox(width: 4),
-                                Text('Napa Valley, California', style: GoogleFonts.poppins(color: DesignColors.textSecondary, fontSize: 12)),
+                                Expanded(
+                                  child: Text(
+                                    'Napa Valley, California', 
+                                    style: GoogleFonts.poppins(color: DesignColors.textSecondary, fontSize: 12),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
                               ],
                             ),
                           ],
@@ -209,39 +234,48 @@ class _ProductDetailsScreenState extends ConsumerState<ProductDetailsScreen> wit
                 const SizedBox(height: DesignSpacing.xl),
 
                 // Farmer's Note
-                Container(
-                  padding: const EdgeInsets.all(DesignSpacing.m),
-                  decoration: BoxDecoration(
-                    color: DesignColors.primary.withOpacity(0.05),
-                    borderRadius: BorderRadius.circular(DesignRadius.m),
-                    border: const Border(left: BorderSide(color: DesignColors.primary, width: 4)),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('FARMER\'S NOTE', style: GoogleFonts.poppins(color: DesignColors.primary, fontWeight: FontWeight.bold, fontSize: 12)),
-                      const SizedBox(height: 8),
-                      Text(
-                        '\"These Heirlooms are peaking this week. We picked them early this morning while the dew was still on the leaves...\"',
-                        style: GoogleFonts.poppins(color: DesignColors.textPrimary, fontStyle: FontStyle.italic),
-                      ),
-                      const SizedBox(height: 8),
-                      Text('— Silas Green, Head Grower', style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 12)),
-                    ],
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Container(
+                    width: isDesktop ? 450 : double.infinity,
+                    padding: const EdgeInsets.all(DesignSpacing.m),
+                    decoration: BoxDecoration(
+                      color: DesignColors.primary.withOpacity(0.05),
+                      borderRadius: BorderRadius.circular(DesignRadius.m),
+                      border: const Border(left: BorderSide(color: DesignColors.primary, width: 4)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('FARMER\'S NOTE', style: GoogleFonts.poppins(color: DesignColors.primary, fontWeight: FontWeight.bold, fontSize: isDesktop ? 10 : 12)),
+                        const SizedBox(height: 8),
+                        Text(
+                          '"These Heirlooms are peaking this week. We picked them early this morning while the dew was still on the leaves..."',
+                          style: GoogleFonts.poppins(color: DesignColors.textPrimary, fontStyle: FontStyle.italic, fontSize: isDesktop ? 12 : 14),
+                        ),
+                        const SizedBox(height: 8),
+                        Text('— Silas Green, Head Grower', style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: isDesktop ? 10 : 12)),
+                      ],
+                    ),
                   ),
                 ),
                 const SizedBox(height: DesignSpacing.xl),
 
                 Text('Nutritional Facts', style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 18)),
                 const SizedBox(height: DesignSpacing.m),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _buildNutrient('CAL', '22'),
-                    _buildNutrient('VIT A', '15%'),
-                    _buildNutrient('VIT C', '20%'),
-                    _buildNutrient('FIBER', '1.5g'),
-                  ],
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      _buildNutrient('CAL', '22'),
+                      const SizedBox(width: 8),
+                      _buildNutrient('VIT A', '15%'),
+                      const SizedBox(width: 8),
+                      _buildNutrient('VIT C', '20%'),
+                      const SizedBox(width: 8),
+                      _buildNutrient('FIBER', '1.5g'),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: DesignSpacing.xl),
 
@@ -262,7 +296,9 @@ class _ProductDetailsScreenState extends ConsumerState<ProductDetailsScreen> wit
             ),
           ),
         ],
-      ),
+      );
+    },
+    ),
       bottomSheet: Container(
         height: 100,
         padding: const EdgeInsets.symmetric(horizontal: DesignSpacing.l),
@@ -278,25 +314,27 @@ class _ProductDetailsScreenState extends ConsumerState<ProductDetailsScreen> wit
         ),
         child: Row(
           children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('TOTAL PRICE', style: GoogleFonts.poppins(color: DesignColors.textSecondary, fontSize: 10, fontWeight: FontWeight.bold)),
-                Text('\$${(widget.product['price'] * _quantity).toStringAsFixed(2)}', style: GoogleFonts.poppins(fontSize: 24, fontWeight: FontWeight.bold)),
-              ],
+            SizedBox(
+              width: 80,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('TOTAL PRICE', style: GoogleFonts.poppins(color: DesignColors.textSecondary, fontSize: 10, fontWeight: FontWeight.bold)),
+                  Text('\$${(widget.product['price'] * (_isBaseWeightSelected ? 1 : 2) * _quantity).toStringAsFixed(2)}', style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold)),
+                ],
+              ),
             ),
-            const SizedBox(width: DesignSpacing.m),
-            Expanded(
-              child: ScaleTransition(
-                scale: _cartScaleAnimation,
-                child: SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
+            const Spacer(),
+            ScaleTransition(
+              scale: _cartScaleAnimation,
+              child: SizedBox(
+                width: 120,
+                child: ElevatedButton(
                     onPressed: () {
                       _cartController.forward();
                       final cartNotifier = ref.read(cartProvider.notifier);
-                      cartNotifier.addToCart(widget.product, _quantity);
+                      cartNotifier.addToCart(widget.product, _isBaseWeightSelected ? '500g' : '1kg', _quantity);
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text("${widget.product['name']} added to basket"),
@@ -316,23 +354,26 @@ class _ProductDetailsScreenState extends ConsumerState<ProductDetailsScreen> wit
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.shopping_cart_outlined, color: DesignColors.primary),
-                        const SizedBox(width: 8),
-                        Text('Add to Cart', style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold, color: DesignColors.primary)),
+                        const Icon(Icons.shopping_cart_outlined, color: DesignColors.primary, size: 18),
+                        const SizedBox(width: 4),
+                        Flexible(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text('Add to Cart', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.bold, color: DesignColors.primary)),
+                          ),
+                        ),
                       ],
                     ),
                   ),
                 ),
-              ),
-            ),
-            const SizedBox(width: DesignSpacing.m),
-            Expanded(
-              child: SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
+            ), // Added missing closing parenthesis for ScaleTransition
+            const SizedBox(width: DesignSpacing.s),
+            SizedBox(
+              width: 100,
+              child: ElevatedButton(
                   onPressed: () {
                     final cartNotifier = ref.read(cartProvider.notifier);
-                    cartNotifier.addToCart(widget.product, _quantity);
+                    cartNotifier.addToCart(widget.product, _isBaseWeightSelected ? '500g' : '1kg', _quantity);
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => const CartScreen()),
@@ -346,14 +387,18 @@ class _ProductDetailsScreenState extends ConsumerState<ProductDetailsScreen> wit
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.bolt_rounded, color: Colors.white),
-                      const SizedBox(width: 8),
-                      Text('Buy Now', style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                      const Icon(Icons.bolt_rounded, color: Colors.white, size: 18),
+                      const SizedBox(width: 4),
+                      Flexible(
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text('Buy Now', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white)),
+                        ),
+                      ),
                     ],
                   ),
                 ),
               ),
-            ),
           ],
         ),
       ),
@@ -375,19 +420,22 @@ class _ProductDetailsScreenState extends ConsumerState<ProductDetailsScreen> wit
     );
   }
 
-  Widget _buildWeightOption(String weight, String price, bool isSelected) {
-    return Container(
-      padding: const EdgeInsets.all(DesignSpacing.m),
-      decoration: BoxDecoration(
-        color: isSelected ? DesignColors.primary.withOpacity(0.05) : DesignColors.surface,
-        borderRadius: BorderRadius.circular(DesignRadius.m),
-        border: Border.all(color: isSelected ? DesignColors.primary : Colors.transparent),
-      ),
-      child: Column(
-        children: [
-          Text(weight, style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 16)),
-          Text(price, style: GoogleFonts.poppins(color: DesignColors.textSecondary, fontSize: 12)),
-        ],
+  Widget _buildWeightOption(String weight, String price, bool isSelected, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(DesignSpacing.m),
+        decoration: BoxDecoration(
+          color: isSelected ? DesignColors.primary.withOpacity(0.05) : DesignColors.surface,
+          borderRadius: BorderRadius.circular(DesignRadius.m),
+          border: Border.all(color: isSelected ? DesignColors.primary : Colors.transparent),
+        ),
+        child: Column(
+          children: [
+            Text(weight, style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 16)),
+            Text(price, style: GoogleFonts.poppins(color: DesignColors.textSecondary, fontSize: 12)),
+          ],
+        ),
       ),
     );
   }
@@ -419,7 +467,7 @@ class _ProductDetailsScreenState extends ConsumerState<ProductDetailsScreen> wit
         child: Stack(
           children: [
             Container(
-              color: Colors.black.withValues(alpha: 0.9),
+              color: Colors.black.withOpacity(0.9),
               child: InteractiveViewer(
                 minScale: 0.5,
                 maxScale: 4.0,
@@ -447,3 +495,4 @@ class _ProductDetailsScreenState extends ConsumerState<ProductDetailsScreen> wit
     );
   }
 }
+

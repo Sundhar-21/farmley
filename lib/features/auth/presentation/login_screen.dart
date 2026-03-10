@@ -58,66 +58,53 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authNotifierProvider);
-    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final isDesktop = screenWidth >= 800;
 
-    return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFFF0FFF0),
-              Color(0xFFFFFFFF),
-              Color(0xFFF8FFF8),
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: screenHeight * 0.05),
-                Center(
-                  child: Container(
-                    width: 100,
-                    height: 100,
-                    decoration: BoxDecoration(
-                      gradient: DesignGradients.primaryGradient,
-                      borderRadius: BorderRadius.circular(30),
-                      boxShadow: DesignShadows.glow,
-                    ),
-                    child: const Icon(
-                      Icons.eco_rounded,
-                      color: Colors.white,
-                      size: 50,
+    final formColumn = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+                if (!isDesktop) ...[
+                  const SizedBox(height: 20),
+                  Center(
+                    child: Container(
+                      width: 100,
+                      height: 100,
+                      decoration: BoxDecoration(
+                        gradient: DesignGradients.primaryGradient,
+                        borderRadius: BorderRadius.circular(30),
+                        boxShadow: DesignShadows.glow,
+                      ),
+                      child: const Icon(
+                        Icons.eco_rounded,
+                        color: Colors.white,
+                        size: 50,
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 32),
-                Center(
-                  child: Text(
-                    "FarmConnect",
-                    style: GoogleFonts.outfit(
-                      fontSize: 36,
-                      fontWeight: FontWeight.bold,
-                      color: DesignColors.primaryDark,
+                  const SizedBox(height: 32),
+                  Center(
+                    child: Text(
+                      "FarmConnect",
+                      style: GoogleFonts.outfit(
+                        fontSize: 36,
+                        fontWeight: FontWeight.bold,
+                        color: DesignColors.primaryDark,
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 8),
-                Center(
-                  child: Text(
-                    "Fresh from farm to your table",
-                    style: GoogleFonts.outfit(
-                      fontSize: 16,
-                      color: DesignColors.textSecondary,
+                  const SizedBox(height: 8),
+                  Center(
+                    child: Text(
+                      "Fresh from farm to your table",
+                      style: GoogleFonts.outfit(
+                        fontSize: 16,
+                        color: DesignColors.textSecondary,
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 48),
+                  const SizedBox(height: 48),
+                ],
                 Text(
                   "Welcome Back",
                   style: GoogleFonts.outfit(
@@ -142,7 +129,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   prefixIcon: Icons.email_outlined,
                   keyboardType: TextInputType.emailAddress,
                   errorText: _emailError,
+                  isDesktop: isDesktop,
                 ),
+                if (_emailError != null && _emailError!.trim().isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8, left: 4),
+                    child: Text(
+                      _emailError!,
+                      style: GoogleFonts.outfit(
+                        color: DesignColors.error,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
                 const SizedBox(height: 20),
                 _buildInputField(
                   controller: _passwordController,
@@ -153,8 +153,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   obscureText: _obscurePassword,
                   onSuffixTap: () => setState(() => _obscurePassword = !_obscurePassword),
                   errorText: _passwordError,
+                  isDesktop: isDesktop,
                 ),
                 const SizedBox(height: 12),
+                if (_passwordError != null && _passwordError!.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12, left: 4),
+                    child: Text(
+                      _passwordError!,
+                      style: GoogleFonts.outfit(
+                        color: DesignColors.error,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
@@ -167,6 +180,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       style: GoogleFonts.outfit(
                         color: DesignColors.primaryDark,
                         fontWeight: FontWeight.w600,
+                        fontSize: isDesktop ? 13 : null,
                       ),
                     ),
                   ),
@@ -185,13 +199,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     child: InkWell(
                       onTap: authState.isLoading
                           ? null
-                          : () {
+                          : () async {
                               HapticFeedback.lightImpact();
                               if (_validateInputs()) {
-                                ref.read(authNotifierProvider.notifier).signIn(
-                                      _emailController.text.trim(),
-                                      _passwordController.text,
-                                    );
+                                try {
+                                  await ref.read(authNotifierProvider.notifier).signIn(
+                                        _emailController.text.trim(),
+                                        _passwordController.text,
+                                      );
+                                } catch (e) {
+                                  // Setup generic or specific matching message based on error 
+                                  if (mounted) {
+                                    setState(() {
+                                      _emailError = ' ';
+                                      _passwordError = 'Wrong username or password';
+                                    });
+                                  }
+                                }
                               }
                             },
                       borderRadius: BorderRadius.circular(DesignRadius.xxl),
@@ -208,7 +232,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             : Text(
                                 "Login",
                                 style: GoogleFonts.outfit(
-                                  fontSize: 18,
+                                  fontSize: isDesktop ? 15 : 18,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
                                 ),
@@ -281,7 +305,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       "Don't have an account? ",
                       style: GoogleFonts.outfit(
                         color: DesignColors.textSecondary,
-                        fontSize: 15,
+                        fontSize: isDesktop ? 13 : 15,
                       ),
                     ),
                     GestureDetector(
@@ -295,18 +319,106 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         "Sign Up",
                         style: GoogleFonts.outfit(
                           color: DesignColors.primaryDark,
-                          fontSize: 15,
+                          fontSize: isDesktop ? 13 : 15,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
                   ],
                 ),
-                SizedBox(height: screenHeight * 0.05),
-              ],
+              const SizedBox(height: 24),
+            ],
+          );
+
+    Widget content;
+    if (isDesktop) {
+      content = Padding(
+        padding: const EdgeInsets.all(40.0),
+        child: formColumn,
+      );
+    } else {
+      content = SingleChildScrollView(
+        padding: const EdgeInsets.all(24.0),
+        child: formColumn,
+      );
+    }
+
+    if (isDesktop) {
+      return Scaffold(
+        body: Row(
+          children: [
+            // ── Left branding panel ───────────────────────────────
+            Expanded(
+              flex: 4,
+              child: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xFF1B9E26), Color(0xFF28D339)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 100,
+                        height: 100,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        child: const Icon(Icons.eco_rounded, color: Colors.white, size: 56),
+                      ),
+                      const SizedBox(height: 28),
+                      Text('FarmConnect', style: GoogleFonts.outfit(color: Colors.white, fontSize: 36, fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 12),
+                      Text('Fresh from farm to your table', style: GoogleFonts.outfit(color: Colors.white.withValues(alpha: 0.8), fontSize: 16)),
+                      const SizedBox(height: 32),
+                      _FeatureBullet(icon: Icons.eco_rounded, text: 'Organic & fresh produce'),
+                      _FeatureBullet(icon: Icons.local_shipping_rounded, text: 'Farm-to-door delivery'),
+                      _FeatureBullet(icon: Icons.verified_rounded, text: 'Verified local farmers'),
+                    ],
+                  ),
+                ),
+              ),
             ),
+            // ── Right form panel ─────────────────────────────────
+            Expanded(
+              flex: 6,
+              child: Container(
+                color: Colors.white,
+                child: CustomScrollView(
+                  slivers: [
+                    SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: Center(
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 440),
+                          child: content,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Scaffold(
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFFF0FFF0), Color(0xFFFFFFFF), Color(0xFFF8FFF8)],
           ),
         ),
+        child: SafeArea(child: content),
       ),
     );
   }
@@ -321,7 +433,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     TextInputType? keyboardType,
     VoidCallback? onSuffixTap,
     String? errorText,
+    bool isDesktop = false,
   }) {
+    final hasError = errorText != null && errorText.isNotEmpty;
+    
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -332,14 +447,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         controller: controller,
         obscureText: obscureText,
         keyboardType: keyboardType,
+        style: GoogleFonts.outfit(color: DesignColors.textPrimary, fontSize: 15),
+        cursorColor: DesignColors.primary,
         decoration: InputDecoration(
           labelText: label,
           hintText: hint,
-          errorText: errorText,
-          labelStyle: GoogleFonts.outfit(color: DesignColors.textSecondary),
-          hintStyle: GoogleFonts.outfit(color: DesignColors.textTertiary),
-          errorStyle: GoogleFonts.outfit(color: DesignColors.error, fontSize: 12),
-          prefixIcon: Icon(prefixIcon, color: errorText != null ? DesignColors.error : DesignColors.primary),
+          labelStyle: GoogleFonts.outfit(color: DesignColors.textSecondary, fontSize: isDesktop ? 15 : null),
+          hintStyle: GoogleFonts.outfit(color: DesignColors.textTertiary, fontSize: isDesktop ? 14 : null),
+          prefixIcon: Icon(prefixIcon, color: hasError ? DesignColors.error : DesignColors.primary),
           suffixIcon: suffixIcon != null
               ? IconButton(
                   icon: Icon(suffixIcon, color: DesignColors.textSecondary),
@@ -348,15 +463,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               : null,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(DesignRadius.l),
-            borderSide: BorderSide.none,
+            borderSide: hasError ? const BorderSide(color: DesignColors.error, width: 1.5) : BorderSide.none,
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(DesignRadius.l),
-            borderSide: BorderSide.none,
+            borderSide: hasError ? const BorderSide(color: DesignColors.error, width: 1.5) : BorderSide.none,
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(DesignRadius.l),
-            borderSide: BorderSide(color: errorText != null ? DesignColors.error : DesignColors.primary, width: 2),
+            borderSide: BorderSide(color: hasError ? DesignColors.error : DesignColors.primary, width: 2),
           ),
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(DesignRadius.l),
@@ -455,6 +570,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 child: TextField(
                   controller: emailController,
+                  style: GoogleFonts.outfit(color: DesignColors.textPrimary),
+                  cursorColor: DesignColors.primary,
                   decoration: InputDecoration(
                     hintText: 'Enter your email',
                     border: InputBorder.none,
@@ -479,7 +596,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ),
                       child: Text(
                         'Cancel',
-                        style: GoogleFonts.outfit(color: DesignColors.textSecondary, fontWeight: FontWeight.bold),
+                        style: GoogleFonts.outfit(color: DesignColors.textSecondary, fontWeight: FontWeight.bold, fontSize: MediaQuery.sizeOf(context).width >= 800 ? 13 : null),
                       ),
                     ),
                   ),
@@ -528,7 +645,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             child: Center(
                               child: Text(
                                 'Send Link',
-                                style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.bold),
+                                style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.bold, fontSize: MediaQuery.sizeOf(context).width >= 800 ? 15 : null),
                               ),
                             ),
                           ),
@@ -542,6 +659,38 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _FeatureBullet extends StatelessWidget {
+  final IconData icon;
+  final String text;
+  const _FeatureBullet({required this.icon, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 32),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.2),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: Colors.white, size: 18),
+          ),
+          const SizedBox(width: 12),
+          Text(
+            text,
+            style: GoogleFonts.outfit(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500),
+          ),
+        ],
       ),
     );
   }

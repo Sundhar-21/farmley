@@ -31,7 +31,7 @@ class FarmerHomeScreen extends ConsumerWidget {
             ),
           ),
           child: SafeArea(
-            child: Padding(
+            child: SingleChildScrollView(
               padding: const EdgeInsets.all(24.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -82,83 +82,83 @@ class FarmerHomeScreen extends ConsumerWidget {
                     ],
                   ),
                   const SizedBox(height: 32),
-                  Expanded(
-                    child: GridView.count(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 16,
-                      mainAxisSpacing: 16,
-                      childAspectRatio: 0.9,
-                      children: [
-                        _DashboardCard(
-                          icon: Icons.add_box_rounded,
-                          label: "Add Product",
-                          subtitle: "List new item",
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFF28D339), Color(0xFF1B9E26)],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          iconColor: Colors.white,
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => const AddProductScreen()),
-                            );
-                          },
+                  GridView.count(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 16,
+                    childAspectRatio: 0.9,
+                    children: [
+                      _DashboardCard(
+                        icon: Icons.add_box_rounded,
+                        label: "Add Product",
+                        subtitle: "List new item",
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF28D339), Color(0xFF1B9E26)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
                         ),
-                        _DashboardCard(
-                          icon: Icons.inventory_2_rounded,
-                          label: "My Products",
-                          subtitle: "Manage inventory",
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFF4AE056), Color(0xFF28D339)],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          iconColor: Colors.white,
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => const MyProductsScreen()),
-                            );
-                          },
+                        iconColor: Colors.white,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const AddProductScreen()),
+                          );
+                        },
+                      ),
+                      _DashboardCard(
+                        icon: Icons.inventory_2_rounded,
+                        label: "My Products",
+                        subtitle: "Manage inventory",
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF4AE056), Color(0xFF28D339)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
                         ),
-                        _DashboardCard(
-                          icon: Icons.receipt_long_rounded,
-                          label: "Orders",
-                          subtitle: "View orders",
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFFF59E0B), Color(0xFFD97706)],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          iconColor: Colors.white,
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => const FarmerOrdersScreen()),
-                            );
-                          },
+                        iconColor: Colors.white,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const MyProductsScreen()),
+                          );
+                        },
+                      ),
+                      _DashboardCard(
+                        icon: Icons.receipt_long_rounded,
+                        label: "Orders",
+                        subtitle: "View orders",
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFFF59E0B), Color(0xFFD97706)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
                         ),
-                        _DashboardCard(
-                          icon: Icons.analytics_rounded,
-                          label: "Sales Stats",
-                          subtitle: "Track performance",
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFF8B5CF6), Color(0xFF7C3AED)],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          iconColor: Colors.white,
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => const SalesStatsScreen()),
-                            );
-                          },
+                        iconColor: Colors.white,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const FarmerOrdersScreen()),
+                          );
+                        },
+                      ),
+                      _DashboardCard(
+                        icon: Icons.analytics_rounded,
+                        label: "Sales Stats",
+                        subtitle: "Track performance",
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF8B5CF6), Color(0xFF7C3AED)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
                         ),
-                      ],
-                    ),
+                        iconColor: Colors.white,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const SalesStatsScreen()),
+                          );
+                        },
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 16),
                   Container(

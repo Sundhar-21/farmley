@@ -281,7 +281,7 @@ class _VoiceButtonState extends ConsumerState<VoiceButton>
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF28D339).withValues(alpha: 0.4),
+                  color: const Color(0xFF28D339).withOpacity(0.4),
                   blurRadius: 16,
                   offset: const Offset(0, 5),
                   spreadRadius: 1,
@@ -293,7 +293,7 @@ class _VoiceButtonState extends ConsumerState<VoiceButton>
                       width: 3,
                     )
                   : Border.all(
-                      color: Colors.white.withValues(alpha: 0.3),
+                      color: Colors.white.withOpacity(0.3),
                       width: 2,
                     ),
             ),
@@ -303,7 +303,7 @@ class _VoiceButtonState extends ConsumerState<VoiceButton>
                   child: Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.2),
+                      color: Colors.white.withOpacity(0.2),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
@@ -325,7 +325,7 @@ class _VoiceButtonState extends ConsumerState<VoiceButton>
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.red.withValues(alpha: 0.5),
+                            color: Colors.red.withOpacity(0.5),
                             blurRadius: 6,
                             spreadRadius: 1,
                           ),
@@ -341,3 +341,4 @@ class _VoiceButtonState extends ConsumerState<VoiceButton>
     );
   }
 }
+

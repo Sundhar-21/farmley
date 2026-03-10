@@ -50,6 +50,8 @@ dependencies:
   speech_to_text: ^7.0.0
   flutter_tts: ^4.2.0
   permission_handler: ^11.3.1
+  razorpay_flutter: ^1.4.1
+  flutter_screenutil: ^5.9.3
 
 dev_dependencies:
   flutter_test:

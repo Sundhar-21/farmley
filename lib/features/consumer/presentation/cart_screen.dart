@@ -6,41 +6,76 @@ import 'package:farmconnect/shared/design_constants.dart';
 import 'package:farmconnect/shared/widgets/empty_state_widget.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:farmconnect/core/services/supabase_service.dart';
-import 'package:farmconnect/features/consumer/presentation/order_success_screen.dart';
 import 'package:farmconnect/features/auth/data/profile_provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:farmconnect/features/consumer/presentation/payment_selection_screen.dart';
 
-class CartScreen extends ConsumerWidget {
+class CartScreen extends ConsumerStatefulWidget {
   const CartScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CartScreen> createState() => _CartScreenState();
+}
+
+class _CartScreenState extends ConsumerState<CartScreen> {
+  @override
+  Widget build(BuildContext context) {
     final cartItems = ref.watch(cartProvider);
     final totalPrice = ref.watch(cartProvider.notifier).totalPrice;
     final profileAsync = ref.watch(userProfileProvider);
 
+    final isDesktop = MediaQuery.sizeOf(context).width >= 800;
+
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: Navigator.canPop(context) ? IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: DesignColors.textPrimary),
-          onPressed: () => Navigator.pop(context),
-        ) : null,
-        title: Text('Your Basket', style: GoogleFonts.outfit(color: DesignColors.textPrimary, fontWeight: FontWeight.bold)),
-        actions: [
-          TextButton(
-            onPressed: () => ref.read(cartProvider.notifier).clearCart(),
-            child: Text('Clear All', style: GoogleFonts.outfit(color: DesignColors.primary, fontWeight: FontWeight.bold)),
-          ),
-          const SizedBox(width: DesignSpacing.m),
-        ],
-      ),
-      body: cartItems.isEmpty
-          ? _buildEmptyState()
-          : SingleChildScrollView(
-              child: Column(
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(DesignSpacing.m),
+              child: Row(
+                children: [
+                  if (Navigator.canPop(context)) ...[
+                    IconButton(
+                      icon: const Icon(Icons.arrow_back_ios_new_rounded, color: DesignColors.textPrimary),
+                      onPressed: () => Navigator.pop(context),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                    ),
+                    const SizedBox(width: DesignSpacing.s),
+                  ],
+                  Expanded(
+                    child: Text(
+                      'Your Basket',
+                      style: GoogleFonts.outfit(
+                        color: DesignColors.textPrimary,
+                        fontSize: isDesktop ? 22 : 28,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  if (cartItems.isNotEmpty)
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        padding: EdgeInsets.zero,
+                        minimumSize: Size.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      onPressed: () => ref.read(cartProvider.notifier).clearCart(),
+                      child: Text(
+                        'Clear All',
+                        style: GoogleFonts.outfit(color: DesignColors.primary, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: cartItems.isEmpty
+                  ? _buildEmptyState()
+                  : SingleChildScrollView(
+                      child: Column(
                 children: [
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: DesignSpacing.l, vertical: DesignSpacing.m),
@@ -68,7 +103,11 @@ class CartScreen extends ConsumerWidget {
                   SizedBox(height: MediaQuery.of(context).padding.bottom + 80),
                 ],
               ),
+              ),
             ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -82,7 +121,7 @@ class CartScreen extends ConsumerWidget {
 
   Widget _buildCartItem(BuildContext context, WidgetRef ref, CartItem item) {
     return Dismissible(
-      key: Key('cart_${item.product['id']}'),
+      key: Key('cart_${item.cartKey}'),
       direction: DismissDirection.endToStart,
       background: Container(
         alignment: Alignment.centerRight,
@@ -95,7 +134,7 @@ class CartScreen extends ConsumerWidget {
       ),
       onDismissed: (direction) {
         HapticFeedback.mediumImpact();
-        ref.read(cartProvider.notifier).removeFromCart(item.product['id']);
+        ref.read(cartProvider.notifier).removeFromCart(item.cartKey);
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: DesignSpacing.l),
@@ -140,7 +179,7 @@ class CartScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '${item.product['unit'] ?? '500g'} bag',
+                    '${item.weight} bag',
                     style: GoogleFonts.poppins(color: DesignColors.textSecondary, fontSize: 12),
                   ),
                 ],
@@ -150,7 +189,7 @@ class CartScreen extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  '\$${(item.product['price'] * item.quantity).toStringAsFixed(2)}',
+                  '\$${(item.product['price'] * (item.weight == '1kg' ? 2 : 1) * item.quantity).toStringAsFixed(2)}',
                   style: GoogleFonts.poppins(color: DesignColors.primary, fontWeight: FontWeight.bold, fontSize: 16),
                 ),
                 const SizedBox(height: 8),
@@ -161,12 +200,12 @@ class CartScreen extends ConsumerWidget {
                   ),
                   child: Row(
                     children: [
-                      _buildQtyBtn(context, ref, item.product['id'], item.quantity - 1, Icons.remove),
+                      _buildQtyBtn(context, ref, item.cartKey, item.quantity - 1, Icons.remove),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8),
                         child: Text('${item.quantity}', style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
                       ),
-                      _buildQtyBtn(context, ref, item.product['id'], item.quantity + 1, Icons.add, isPrimary: true),
+                      _buildQtyBtn(context, ref, item.cartKey, item.quantity + 1, Icons.add, isPrimary: true),
                     ],
                   ),
                 ),
@@ -178,9 +217,9 @@ class CartScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildQtyBtn(BuildContext context, WidgetRef ref, int productId, int newQty, IconData icon, {bool isPrimary = false}) {
+  Widget _buildQtyBtn(BuildContext context, WidgetRef ref, String cartKey, int newQty, IconData icon, {bool isPrimary = false}) {
     return GestureDetector(
-      onTap: () => ref.read(cartProvider.notifier).updateQuantity(productId, newQty),
+      onTap: () => ref.read(cartProvider.notifier).updateQuantity(cartKey, newQty),
       child: Container(
         padding: const EdgeInsets.all(4),
         decoration: BoxDecoration(
@@ -245,7 +284,7 @@ class CartScreen extends ConsumerWidget {
         borderRadius: const BorderRadius.vertical(top: Radius.circular(DesignRadius.xxl)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withOpacity(0.05),
             blurRadius: 10,
             offset: const Offset(0, -5),
           ),
@@ -271,9 +310,9 @@ class CartScreen extends ConsumerWidget {
             child: Container(
               padding: const EdgeInsets.all(DesignSpacing.m),
               decoration: BoxDecoration(
-                color: hasAddress ? DesignColors.primary.withValues(alpha: 0.1) : DesignColors.error.withValues(alpha: 0.1),
+                color: hasAddress ? DesignColors.primary.withOpacity(0.1) : DesignColors.error.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(DesignRadius.m),
-                border: hasAddress ? null : Border.all(color: DesignColors.error.withValues(alpha: 0.3)),
+                border: hasAddress ? null : Border.all(color: DesignColors.error.withOpacity(0.3)),
               ),
               child: Row(
                 children: [
@@ -309,8 +348,14 @@ class CartScreen extends ConsumerWidget {
             children: [
               const Icon(Icons.access_time_rounded, color: DesignColors.textSecondary, size: 20),
               const SizedBox(width: DesignSpacing.s),
-              Text('Next: Tomorrow, 8am-10am', style: GoogleFonts.poppins(color: DesignColors.textPrimary, fontWeight: FontWeight.w500)),
-              const Spacer(),
+              Expanded(
+                child: FittedBox(
+                  alignment: Alignment.centerLeft,
+                  fit: BoxFit.scaleDown,
+                  child: Text('Next: Tomorrow, 8am-10am', style: GoogleFonts.poppins(color: DesignColors.textPrimary, fontWeight: FontWeight.w500)),
+                ),
+              ),
+              const SizedBox(width: 8),
               TextButton(onPressed: () {}, child: Text('CHANGE', style: GoogleFonts.poppins(color: DesignColors.primary, fontWeight: FontWeight.bold))),
             ],
           ),
@@ -333,22 +378,15 @@ class CartScreen extends ConsumerWidget {
                 );
                 return;
               }
-              try {
-                final supabase = ref.read(supabaseProvider);
-                await ref.read(cartProvider.notifier).checkout(supabase, shippingAddress);
-                if (context.mounted) {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => const OrderSuccessScreen()),
-                  );
-                }
-              } catch (e) {
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
-                  );
-                }
-              }
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => PaymentSelectionScreen(
+                    totalAmount: total + deliveryFee,
+                    shippingAddress: shippingAddress,
+                  ),
+                ),
+              );
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF008000), 
@@ -505,3 +543,4 @@ class CartScreen extends ConsumerWidget {
     );
   }
 }
+

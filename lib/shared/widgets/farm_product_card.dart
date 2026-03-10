@@ -90,7 +90,7 @@ class FarmProductCard extends ConsumerWidget {
                     children: [
                       GestureDetector(
                         onTap: () {
-                          ref.read(cartProvider.notifier).addToCart(product, 1);
+                          ref.read(cartProvider.notifier).addToCart(product, product['unit'] ?? '500g', 1);
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text('${product['name']} added to cart!')),
                           );
@@ -282,22 +282,28 @@ class FarmProductCard extends ConsumerWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '\$${product['price']}',
-                            style: GoogleFonts.poppins(
-                              color: DesignColors.primaryDark,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                '\$${product['price']}',
+                                style: GoogleFonts.poppins(
+                                  color: DesignColors.primaryDark,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                       GestureDetector(
                         onTap: () {
-                          ref.read(cartProvider.notifier).addToCart(product, 1);
+                          ref.read(cartProvider.notifier).addToCart(product, product['unit'] ?? '500g', 1);
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text("${product['name']} added to cart"),
@@ -335,3 +341,4 @@ class FarmProductCard extends ConsumerWidget {
     );
   }
 }
+
